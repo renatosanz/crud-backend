@@ -50,3 +50,4 @@ export const User = sequelize.define(
     underscored: true, // snake_case en columnas
   }
 );
+
