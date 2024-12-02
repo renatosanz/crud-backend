@@ -25,4 +25,13 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get('/',async (req,res)=>{
+  try {
+    let body = req.body;
+    
+  } catch (error) {
+    
+  }
+})
+
 export default router;

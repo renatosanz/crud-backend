@@ -28,7 +28,7 @@ app.post("/login", async (req, res) => {
     let body = req.body;
 
     // busca la usuario en la db
-    const usuarioDB = await User.findOne({ where: { email: body.email } });
+    let usuarioDB = await User.findOne({ where: { email: body.email } });
     if (!usuarioDB) {
       return res.status(400).json({
         ok: false,
@@ -46,11 +46,17 @@ app.post("/login", async (req, res) => {
           message: "Usuario o contraseña incorrectos",
         },
       });
+    } else {
+      // Remover info inecesaria, esta info solo se obtendra mediante llamadas ala api autenticadas
+      delete usuarioDB.dataValues?.password;
+      delete usuarioDB.dataValues?.balance;
+      delete usuarioDB.dataValues?.createdAt;
+      delete usuarioDB.dataValues?.updatedAt;
     }
 
     let token = jwt.sign(
       {
-        usuario: usuarioDB,
+        user: usuarioDB,
       },
       process.env.SEED_AUTENTICACION,
       {
@@ -59,7 +65,6 @@ app.post("/login", async (req, res) => {
     );
     res.json({
       ok: true,
-      usuario: usuarioDB,
       token,
     });
   } catch (error) {
