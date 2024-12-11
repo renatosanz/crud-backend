@@ -4,7 +4,7 @@
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon index.mjs",
+    "dev": "nodemon index.mjs",
     "migrate": "nodemon setupDB.mjs"
   },
   "author": "",
