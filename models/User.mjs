@@ -6,8 +6,7 @@ export const User = sequelize.define(
   "User",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.STRING,
       primaryKey: true,
     },
     username: {
@@ -39,7 +38,7 @@ export const User = sequelize.define(
       },
     },
     balance: {
-      type: DataTypes.BIGINT.UNSIGNED, 
+      type: DataTypes.FLOAT, 
       allowNull: false,
       defaultValue: 0,
     },
