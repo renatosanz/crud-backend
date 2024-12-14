@@ -6,14 +6,14 @@ import crypto from "crypto";
 
 const router = express.Router();
 
-// LOGIN de la app
+// user login
 router.post("/login", async (req, res) => {
   try {
     let body = req.body;
 
     // busca la usuario en la db
-    let usuarioDB = await User.findOne({ where: { email: body.email } });
-    if (!usuarioDB) {
+    let user_db = await User.findOne({ where: { email: body.email } });
+    if (!user_db) {
       return res.status(400).json({
         ok: false,
         err: {
@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
     }
 
     // valida que la contraseña escrita por el usuario, sea la almacenada en la db
-    if (!bcrypt.compareSync(body.password, usuarioDB.password)) {
+    if (!bcrypt.compareSync(body.password, user_db.password)) {
       return res.status(400).json({
         ok: false,
         err: {
@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
 
     let token = jwt.sign(
       {
-        user: usuarioDB.dataValues.id,
+        user: user_db.dataValues.id,
       },
       process.env.SEED_AUTENTICACION,
       {
@@ -56,14 +56,14 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// registrar un usuario
+// user register
 router.post("/register", async (req, res) => {
   try {
     let userDataHashedPwd = req.body;
     bcrypt.genSalt(10, function (err, salt) {
-      // generar un salt
+      // gen salt
       bcrypt.hash(req.body.password, salt, async (err, hash) => {
-        // hashear el password
+        // hash password
         userDataHashedPwd.password = hash;
         userDataHashedPwd.id = crypto.randomUUID();
         await User.create(userDataHashedPwd);
@@ -79,23 +79,25 @@ router.post("/register", async (req, res) => {
 // get protected data
 router.get("/protected", async (req, res) => {
   let token = req.cookies.access_token;
-  console.log("token", token);
   if (!token) {
     return res.status(403).send("Not authorized: no token provided.");
   }
 
   try {
     let user_id = jwt.verify(token, process.env.SEED_AUTENTICACION);
-    console.log("user_id: ", user_id.user);
     let user_db = await User.findOne({ where: { id: user_id.user } });
 
     res.status(200).json({
       ok: true,
-      data: {
+      user_data: {
         username: user_db.dataValues.username,
         balance: user_db.dataValues.balance,
         country: user_db.dataValues.country,
         age: user_db.dataValues.age,
+        storage_limit: user_db.dataValues.storage_limit,
+        role: user_db.dataValues.role,
+        last_login: user_db.dataValues.last_login,
+        status: user_db.dataValues.status,
       },
     });
   } catch {
@@ -104,11 +106,27 @@ router.get("/protected", async (req, res) => {
 });
 
 // logout
-router.get("/logout", async (req, res) => {
-  res
-    .clearCookie("access_token", { sameSite: "none", secure: true })
-    .status(200)
-    .json();
+router.post("/logout", async (req, res) => {
+  let token = req.cookies.access_token;
+  if (!token) {
+    console.log("not auth logout");
+    return res.status(403).send("Logout not authorized: no token provided.");
+  }
+  try {
+    let user_id = jwt.verify(token, process.env.SEED_AUTENTICACION);
+    let user_db = await User.findOne({ where: { id: user_id.user } });
+    // save last login data
+    user_db.last_login = req.body.last_login;
+    user_db.save();
+    console.log("logout success");
+    res
+      .clearCookie("access_token", { sameSite: "none", secure: true })
+      .status(200)
+      .json();
+  } catch (err) {
+    console.log("not auth logout");
+    return res.status(403).send("Logout not authorized.");
+  }
 });
 
 export default router;
