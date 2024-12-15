@@ -67,7 +67,9 @@ router.post("/register", async (req, res) => {
         userDataHashedPwd.password = hash;
         userDataHashedPwd.id = crypto.randomUUID();
         await User.create(userDataHashedPwd);
-        res.status(201).json({ message: "Thank you for registering to JOP" });
+        res
+          .status(201)
+          .json({ ok: true, message: "Thank you for registering to JOP" });
       });
     });
   } catch (error) {
@@ -91,7 +93,42 @@ router.get("/protected", async (req, res) => {
       ok: true,
       user_data: {
         username: user_db.dataValues.username,
-        balance: user_db.dataValues.balance,
+        email: user_db.dataValues.email,
+        country: user_db.dataValues.country,
+        age: user_db.dataValues.age,
+        storage_limit: user_db.dataValues.storage_limit,
+        role: user_db.dataValues.role,
+        last_login: user_db.dataValues.last_login,
+        status: user_db.dataValues.status,
+      },
+    });
+  } catch {
+    return res.status(403).send("Not authorized.");
+  }
+});
+
+// change user data
+router.patch("/changedata", async (req, res) => {
+  let token = req.cookies.access_token;
+  if (!token) {
+    return res.status(403).send("Not authorized: no token provided.");
+  }
+
+  try {
+    let user_id = jwt.verify(token, process.env.SEED_AUTENTICACION);
+    let user_db = await User.findOne({ where: { id: user_id.user } });
+
+    // save changes in db
+    user_db.username = req.body.username;
+    user_db.age = req.body.age;
+    user_db.save();
+
+    // send the new user information
+    res.status(200).json({
+      ok: true,
+      user_data: {
+        username: user_db.dataValues.username,
+        email: user_db.dataValues.email,
         country: user_db.dataValues.country,
         age: user_db.dataValues.age,
         storage_limit: user_db.dataValues.storage_limit,
@@ -122,7 +159,7 @@ router.post("/logout", async (req, res) => {
     res
       .clearCookie("access_token", { sameSite: "none", secure: true })
       .status(200)
-      .json();
+      .json({ ok: true });
   } catch (err) {
     console.log("not auth logout");
     return res.status(403).send("Logout not authorized.");
