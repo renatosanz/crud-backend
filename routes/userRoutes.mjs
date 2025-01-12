@@ -95,8 +95,7 @@ router.get("/protected", async (req, res) => {
         username: user_db.dataValues.username,
         email: user_db.dataValues.email,
         country: user_db.dataValues.country,
-        age: user_db.dataValues.age,
-        storage_limit: user_db.dataValues.storage_limit,
+        recipes_count: user_db.dataValues.recipes_count,
         role: user_db.dataValues.role,
         last_login: user_db.dataValues.last_login,
         status: user_db.dataValues.status,
@@ -120,7 +119,6 @@ router.patch("/changedata", async (req, res) => {
 
     // save changes in db
     user_db.username = req.body.username;
-    user_db.age = req.body.age;
     user_db.save();
 
     // send the new user information

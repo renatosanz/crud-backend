@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../setupDB.mjs";
-import { BackupFile } from "./BackupFile.mjs";
+import { Receta } from "./Recetas.mjs";
 
 export const User = sequelize.define(
   "User",
@@ -36,23 +36,12 @@ export const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    age: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: true,
-        min: 0,
-      },
-    },
+    
     role: {
       type: DataTypes.ENUM("user", "admin"),
       defaultValue: "user",
     },
-    storage_limit: {
-      type: DataTypes.INTEGER, // en MB
-      defaultValue: 500, // límite predeterminado de almacenamiento
-    },
-    backup_count: {
+    recipes_count: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
@@ -72,4 +61,4 @@ export const User = sequelize.define(
   }
 );
 
-User.hasMany(BackupFile, { foreignKey: "user_id" });
+User.hasMany(Receta, { foreignKey: "user_id" });

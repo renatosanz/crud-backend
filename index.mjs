@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { sequelize } from "./setupDB.mjs";
 import userRoutes from "./routes/userRoutes.mjs"; // Importa las rutas
-import fileRoutes from "./routes/FileRoutes.mjs"; // Importa las rutas
+import recipesRoutes from "./routes/RecetasRoutes.mjs"; // Importa las rutas
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -23,7 +23,7 @@ const port = process.env.SERVER_PORT || 3000;
 
 // rutas de user
 app.use("/user", userRoutes);
-app.use("/backups",fileRoutes)
+app.use("/backups",recipesRoutes)
 
 // rutas basicas
 app.get("/", (req, res) => {

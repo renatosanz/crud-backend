@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../setupDB.mjs";
 
-export const BackupFile = sequelize.define(
-  "BackupFile",
+export const Receta = sequelize.define(
+  "Receta",
   {
     id: {
       type: DataTypes.STRING,
@@ -12,25 +12,21 @@ export const BackupFile = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    file_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    file_data: {
-      type: DataTypes.BLOB("long"), // Almacena el archivo como binario
-      allowNull: false,
-    },
     uploaded_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     description: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
   },
   {
-    tableName: "backup_files",
+    tableName: "recipes",
     timestamps: false,
     underscored: true,
   }
