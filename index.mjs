@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import multer from "multer";
+
 import { sequelize } from "./setupDB.mjs";
 import userRoutes from "./routes/userRoutes.mjs"; // Importa las rutas
 import recipesRoutes from "./routes/RecetasRoutes.mjs"; // Importa las rutas
@@ -23,7 +25,7 @@ const port = process.env.SERVER_PORT || 3000;
 
 // rutas de user
 app.use("/user", userRoutes);
-app.use("/backups",recipesRoutes)
+app.use("/recipe", recipesRoutes);
 
 // rutas basicas
 app.get("/", (req, res) => {
@@ -39,7 +41,7 @@ app.get("/", (req, res) => {
     // await sequelize.sync({ force: true }); // force para crear las tablas
     await sequelize.sync(); // sincronizar base de datos
     console.log("Base de datos sincronizada.");
-    
+
     app.listen(port, () => {
       console.log(`Servidor escuchando en http://localhost:${port}`);
     });

@@ -58,8 +58,12 @@ router.post("/login", async (req, res) => {
 
 // user register
 router.post("/register", async (req, res) => {
+  let userDataHashedPwd = req.body;
+  if (await User.findOne({ where: { email: userDataHashedPwd.email } })) {
+    console.log('email ya ocupado')
+    return res.json({ ok: false, error: "Email ya ocupado" });
+  }
   try {
-    let userDataHashedPwd = req.body;
     bcrypt.genSalt(10, function (err, salt) {
       // gen salt
       bcrypt.hash(req.body.password, salt, async (err, hash) => {
@@ -69,12 +73,12 @@ router.post("/register", async (req, res) => {
         await User.create(userDataHashedPwd);
         res
           .status(201)
-          .json({ ok: true, message: "Thank you for registering to JOP" });
+          .json({ ok: true, message: "Thank you for registering" });
       });
     });
   } catch (error) {
     console.error("Error: ", error);
-    res.status(500).json({ error: "Error on registering user" });
+    res.status(500).json({ ok: false, error: "Error on registering user" });
   }
 });
 
