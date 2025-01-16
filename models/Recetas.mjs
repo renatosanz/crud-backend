@@ -24,6 +24,10 @@ export const Receta = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    img_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     tableName: "recipes",

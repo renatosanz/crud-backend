@@ -3,6 +3,7 @@ import { User } from "../models/User.mjs";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { Receta } from "../models/Recetas.mjs";
 
 const router = express.Router();
 
@@ -60,7 +61,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   let userDataHashedPwd = req.body;
   if (await User.findOne({ where: { email: userDataHashedPwd.email } })) {
-    console.log('email ya ocupado')
+    console.log("email ya ocupado");
     return res.json({ ok: false, error: "Email ya ocupado" });
   }
   try {
@@ -90,16 +91,20 @@ router.get("/protected", async (req, res) => {
   }
 
   try {
-    let user_id = jwt.verify(token, process.env.SEED_AUTENTICACION);
-    let user_db = await User.findOne({ where: { id: user_id.user } });
+    let token_decoded = jwt.verify(token, process.env.SEED_AUTENTICACION);
+    let user_db = await User.findOne({ where: { id: token_decoded.user } });
+    let recipes_count = await Receta.findAll({
+      where: { user_id: token_decoded.user },
+    });
 
     res.status(200).json({
       ok: true,
       user_data: {
         username: user_db.dataValues.username,
         email: user_db.dataValues.email,
+        user_id: user_db.dataValues.id,
         country: user_db.dataValues.country,
-        recipes_count: user_db.dataValues.recipes_count,
+        recipes_count: recipes_count.length,
         role: user_db.dataValues.role,
         last_login: user_db.dataValues.last_login,
         status: user_db.dataValues.status,

@@ -1,6 +1,8 @@
 import express from "express";
 import { Receta } from "../models/Recetas.mjs";
 import multer from "multer";
+import jwt from "jsonwebtoken";
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads");
@@ -17,8 +19,37 @@ const router = express.Router();
 
 router.post("/upload", upload.single("image"), async (req, res) => {
   console.log(req.file, req.body);
-  // TODO: guardar las recetas en base de datos {name,upload-date,description,img_name}
-  res.status(200).json("ok");
+  let recipe_data = req.body;
+  try {
+    await Receta.create({
+      id: crypto.randomUUID(),
+      user_id: recipe_data.user_id,
+      title: recipe_data.title,
+      uploaded_at: recipe_data.uploaded_at,
+      description: recipe_data.description,
+      img_name: req.file.filename,
+    });
+    return res.status(201).json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: "Error al publicar receta" });
+  }
+});
+
+router.get("/getUserRecipes", async (req, res) => {
+  let token = req.cookies.access_token;
+  if (!token) {
+    return res.status(403).send("Not authorized: no token provided.");
+  }
+  try {
+    let token_decoded = jwt.verify(token, process.env.SEED_AUTENTICACION);
+    console.log('token_decoded', token_decoded)
+    let recipes = await Receta.findAll({
+      where: { user_id: token_decoded.user },
+    });
+    return res.status(201).json({ ok: true, recipes });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: "Error en obtener recetas" });
+  }
 });
 
 export default router;
