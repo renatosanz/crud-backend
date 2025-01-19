@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../setupDB.mjs";
-import { Receta } from "./Recetas.mjs";
 
 export const User = sequelize.define(
   "User",
@@ -60,5 +59,3 @@ export const User = sequelize.define(
     underscored: true,
   }
 );
-
-User.hasMany(Receta, { foreignKey: "user_id" });

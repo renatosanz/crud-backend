@@ -1,9 +1,8 @@
 import express from "express";
-import { User } from "../models/User.mjs";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { Receta } from "../models/Recetas.mjs";
+import { Receta, User } from "../models/index.mjs";
 
 const router = express.Router();
 
