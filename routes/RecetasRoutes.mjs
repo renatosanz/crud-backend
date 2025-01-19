@@ -27,6 +27,7 @@ router.post("/upload", upload.single("image"), async (req, res) => {
       title: recipe_data.title,
       uploaded_at: recipe_data.uploaded_at,
       description: recipe_data.description,
+      ingredients: recipe_data.ingredients,
       img_name: req.file.filename,
     });
     return res.status(201).json({ ok: true });
@@ -42,7 +43,6 @@ router.get("/getUserRecipes", async (req, res) => {
   }
   try {
     let token_decoded = jwt.verify(token, process.env.SEED_AUTENTICACION);
-    console.log('token_decoded', token_decoded)
     let recipes = await Receta.findAll({
       where: { user_id: token_decoded.user },
     });

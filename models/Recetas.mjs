@@ -28,6 +28,10 @@ export const Receta = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    ingredients: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     tableName: "recipes",
