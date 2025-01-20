@@ -2,11 +2,17 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import multer from "multer";
-
+import path from "path";
 import { sequelize } from "./setupDB.mjs";
-import userRoutes from "./routes/userRoutes.mjs"; // Importa las rutas
-import recipesRoutes from "./routes/RecetasRoutes.mjs"; // Importa las rutas
+import userRoutes from "./routes/userRoutes.mjs";
+import recipesRoutes from "./routes/RecetasRoutes.mjs";
 import cookieParser from "cookie-parser";
+
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 
@@ -21,6 +27,14 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/images", express.static(path.join(__dirname, "uploads")));
+
+// Ejemplo de endpoint para manejar imágenes específicas
+app.get("/images/:filename", (req, res) => {
+  const { filename } = req.params;
+  const filepath = path.join(__dirname, "uploads", filename);
+  res.sendFile(filepath);
+});
 const port = process.env.SERVER_PORT || 3000;
 
 // rutas de user

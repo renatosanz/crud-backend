@@ -22,7 +22,7 @@ export const Receta = sequelize.define(
       allowNull: false,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     img_name: {

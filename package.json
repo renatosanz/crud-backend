@@ -2,9 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.mjs",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.mjs",
+    "dev": "nodemon index.js",
     "migrate": "nodemon setupDB.mjs"
   },
   "author": "",
@@ -20,6 +21,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.11.4",
+    "nanoid": "^5.0.9",
     "nodemon": "^3.1.7",
     "sequelize": "^6.37.5"
   }
