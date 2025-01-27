@@ -56,7 +56,7 @@ app.get("/", (req, res) => {
     await sequelize.authenticate();
     console.log("Conexión con la base de datos establecida correctamente.");
 
-    // await sequelize.sync({ force: true }); // force para crear las tablas
+    //await sequelize.sync({ force: true }); // force para crear las tablas
     await sequelize.sync(); // sincronizar base de datos
     console.log("Base de datos sincronizada.");
 

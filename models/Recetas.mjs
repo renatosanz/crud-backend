@@ -30,7 +30,7 @@ export const Receta = sequelize.define(
       allowNull: false,
     },
     ingredients: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   },
