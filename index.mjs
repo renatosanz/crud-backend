@@ -29,6 +29,10 @@ app.use(
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "uploads")));
 
+app.get("/",async (req,res) => {
+  res.json("hola desde el server")
+})
+
 // Ejemplo de endpoint para manejar imágenes específicas
 app.get("/images/:filename", (req, res) => {
   const { filename } = req.params;
