@@ -11,7 +11,7 @@ export const sequelize = new Sequelize(
   {
     host: process.env.HOST,
     port: process.env.DB_PORT,
-    dialect: "mysql",
+    dialect: "postgres",
     logging: false, // Desactiva el logging (útil en producción)
     pool: {
       max: 5, // Máximo de conexiones simultáneas
