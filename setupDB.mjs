@@ -21,13 +21,3 @@ export const sequelize = new Sequelize(
     },
   }
 );
-
-// Probar conexión con la base de datos
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("Conexión con la base de datos establecida correctamente.");
-  } catch (error) {
-    console.error("Error al conectar con la base de datos:", error.message);
-  }
-})();
