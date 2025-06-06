@@ -11,6 +11,8 @@ import cookieParser from "cookie-parser";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
+import "./routes/RandomMeal.mjs";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -29,9 +31,9 @@ app.use(
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "uploads")));
 
-app.get("/",async (req,res) => {
-  res.json("hola desde el server")
-})
+app.get("/", async (req, res) => {
+  res.json("hola desde el server");
+});
 
 // Ejemplo de endpoint para manejar imágenes específicas
 app.get("/images/:filename", (req, res) => {
@@ -54,16 +56,16 @@ app.get("/", (req, res) => {
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log("Conexión con la base de datos establecida correctamente.");
+    console.log("Database Connection Succesful!");
 
     //await sequelize.sync({ force: true }); // force para crear las tablas
     await sequelize.sync(); // sincronizar base de datos
-    console.log("Base de datos sincronizada.");
+    console.log("Database synced.");
 
     app.listen(port, () => {
-      console.log(`Servidor escuchando en http://localhost:${port}`);
+      console.log(`Server running on http://localhost:${port}`);
     });
   } catch (error) {
-    console.error("Error al inicializar la aplicación:", error);
+    console.error("Error initializing the application:", error);
   }
 })();
