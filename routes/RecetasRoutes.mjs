@@ -13,7 +13,7 @@ var storage = multer.diskStorage({
     cb(null, userDir);
   },
   filename: function (req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}-${file.originalname}`);
+    cb(null, `${file.fieldname}-${Date.now()}.png`);
   },
 });
 
@@ -57,6 +57,7 @@ router.get("/getUserRecipes", async (req, res) => {
     let token_decoded = jwt.verify(token, process.env.SEED_AUTENTICACION);
     let recipes = await Receta.findAll({
       where: { user_id: token_decoded.user },
+      attributes: ["id", "title", "uploaded_at", "description"],
     });
     return res.status(201).json({ ok: true, recipes });
   } catch (e) {
@@ -75,9 +76,10 @@ router.post("/searchRecipes", async (req, res) => {
       attributes: ["id", "title", "uploaded_at", "ingredients"],
       where: {
         title: {
-          [Op.like]: `%${searchText}%`,
+          [Op.iLike]: `%${searchText}%`,
         },
       },
+      limit: 10,
       include: [
         {
           model: User,
@@ -101,13 +103,13 @@ router.post("/searchRecipes", async (req, res) => {
   }
 });
 
-router.post("/getRecipe", async (req, res) => {
+router.get("/getRecipe", async (req, res) => {
   let token = req.cookies.access_token;
   if (!token) {
     return res.status(403).send("Not authorized: no token provided.");
   }
   try {
-    let recipe_id = req.body.recipe_id;
+    let recipe_id = req.query.id;
     let recipe = await Receta.findOne({
       attributes: [
         "description",
