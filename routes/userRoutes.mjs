@@ -1,8 +1,16 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
 import { Receta, User } from "../models/index.mjs";
+import path from "path";
+import fs from "fs";
+import { nanoid } from "nanoid";
+
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const router = express.Router();
 
@@ -69,7 +77,7 @@ router.post("/register", async (req, res) => {
       bcrypt.hash(req.body.password, salt, async (err, hash) => {
         // hash password
         userDataHashedPwd.password = hash;
-        userDataHashedPwd.id = crypto.randomUUID();
+        userDataHashedPwd.id = nanoid(10);
         await User.create(userDataHashedPwd);
         res
           .status(201)
@@ -129,22 +137,72 @@ router.patch("/changedata", async (req, res) => {
     user_db.username = req.body.username;
     user_db.save();
 
+    const {
+      username,
+      email,
+      country,
+      age,
+      storage_limit,
+      role,
+      last_login,
+      status,
+    } = user_db.dataValues;
+
     // send the new user information
     res.status(200).json({
       ok: true,
       user_data: {
-        username: user_db.dataValues.username,
-        email: user_db.dataValues.email,
-        country: user_db.dataValues.country,
-        age: user_db.dataValues.age,
-        storage_limit: user_db.dataValues.storage_limit,
-        role: user_db.dataValues.role,
-        last_login: user_db.dataValues.last_login,
-        status: user_db.dataValues.status,
+        username,
+        email,
+        country,
+        age,
+        storage_limit,
+        role,
+        last_login,
+        status,
       },
     });
   } catch {
     return res.status(403).send("Not authorized.");
+  }
+});
+
+// return random meal of the day
+// complete param is for retrive the complete recipe or just banner info
+router.get("/random_day_meal", async (req, res) => {
+  let token = req.cookies.access_token;
+  if (!token) {
+    console.log("not auth logout");
+    return res.status(403).send("Logout not authorized: no token provided.");
+  }
+  try {
+    fs.readFile(
+      path.join(__dirname, "../api-data/random_meal.json"),
+      "utf8",
+      (err, data) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        // return all the data of just a piece for banner info
+        if (req.query.complete == "true") {
+          res.status(200).json({ random_meal: JSON.parse(data), ok: true });
+        } else {
+          const { title, description, img } = JSON.parse(data);
+          res.status(200).json({
+            random_meal: {
+              title,
+              description: description.slice(0, 150),
+              img,
+            },
+            ok: true,
+          });
+        }
+      }
+    );
+  } catch (err) {
+    console.log("not auth request for random meal");
+    return res.status(403).send("Random Day Meal not authorized.");
   }
 });
 
