@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../setupDB.mjs";
-import { User } from "./User.mjs";
 
 export const Receta = sequelize.define(
   "Receta",
