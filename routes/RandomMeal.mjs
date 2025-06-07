@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { title } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,23 +23,36 @@ async function fetchAndSaveData() {
     const filename = `random_meal.json`;
     const meal = response.data.meals[0];
 
+    console.log("🍽️ Comida aleatoria:", {
+      nombre: meal.strMeal,
+      categoría: meal.strCategory,
+      área: meal.strArea,
+      instrucciones: meal.strInstructions.slice(0, 100) + "...", // Resumen
+      imagen: meal.strMealThumb,
+    });
+
+    const {
+      strMeal,
+      strInstructions,
+      strYouTube,
+      strMealThumb,
+      strArea,
+      strCategory,
+      strSource,
+    } = meal;
+
     // transform and organize the data from the API
     let processed_meal = {
-      title: "",
+      title: strMeal || "",
       ingredients: [],
-      description: "",
-      youtube_link: "",
-      img: "",
-      origin: "",
-      category: "",
+      description: strInstructions || "",
+      youtube_link: strYouTube || "",
+      img: strMealThumb || "",
+      origin: strArea || "",
+      category: strCategory || "",
+      source: strSource || "",
+      author: "themealdb.com",
     };
-
-    processed_meal.title = meal.strMeal;
-    processed_meal.description = meal.strInstructions;
-    processed_meal.youtube_link = meal.strYouTube;
-    processed_meal.img = meal.strMealThumb;
-    processed_meal.origin = meal.strArea;
-    processed_meal.category = meal.strCategory;
 
     for (let i = 1; i < 20; i++) {
       if (meal["strIngredient" + i] != "" && meal["strMeasure" + i] != "") {
@@ -62,12 +74,11 @@ async function fetchAndSaveData() {
 }
 
 cron.schedule(
-  "* 23 * * *",
+  "0 0 * * *",
   () => {
     fetchAndSaveData();
   },
   {
-    schedule: true,
     timezone: "America/Mexico_City",
   }
 );
