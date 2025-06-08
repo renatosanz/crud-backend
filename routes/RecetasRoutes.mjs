@@ -6,11 +6,12 @@ import fs from "fs";
 import { nanoid } from "nanoid";
 import { Receta, User } from "../models/index.mjs";
 
+const UPLOADS_DIR = "uploads/";
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const userDir = `uploads/`;
-    fs.mkdirSync(userDir, { recursive: true });
-    cb(null, userDir);
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    cb(null, UPLOADS_DIR);
   },
   filename: function (req, file, cb) {
     cb(null, `${file.fieldname}-${Date.now()}.png`);
@@ -28,11 +29,11 @@ router.post("/upload", upload.single("image"), async (req, res) => {
   if (!user_id || !title || !description || !ingredients || !req.file) {
     return res
       .status(400)
-      .json({ ok: false, message: "Faltan datos requeridos" });
+      .json({ ok: false, message: "Required data is missing" });
   }
 
   try {
-    await Receta.create({
+    Receta.create({
       id: nanoid(10),
       user_id,
       title,
@@ -40,11 +41,17 @@ router.post("/upload", upload.single("image"), async (req, res) => {
       description,
       ingredients,
       img_name: req.file.filename,
-    });
+    }).then(() =>
+      User.findOne({ where: { id: user_id } }).then((user) => {
+        //increment recipes_count by one
+        user.recipes_count++;
+        user.save();
+      })
+    );
     return res.status(201).json({ ok: true });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ ok: false, message: "Error al publicar receta" });
+    res.status(500).json({ ok: false, message: "Error publishing recipe" });
   }
 });
 
@@ -61,7 +68,7 @@ router.get("/getUserRecipes", async (req, res) => {
     });
     return res.status(201).json({ ok: true, recipes });
   } catch (e) {
-    res.status(500).json({ ok: false, message: "Error en obtener recetas" });
+    res.status(500).json({ ok: false, message: "Error getting user recipes" });
   }
 });
 
@@ -70,8 +77,8 @@ router.post("/searchRecipes", async (req, res) => {
   if (!token) {
     return res.status(403).send("Not authorized: no token provided.");
   }
+  let searchText = req.body.search || "";
   try {
-    let searchText = req.body.search || "";
     let recipes = await Receta.findAll({
       attributes: ["id", "title", "uploaded_at", "ingredients"],
       where: {
@@ -99,7 +106,10 @@ router.post("/searchRecipes", async (req, res) => {
     return res.status(201).json({ ok: true, recipes });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ ok: false, message: "Error en obtener recetas" });
+    res.status(500).json({
+      ok: false,
+      message: `Error searching recipes for ${searchText} `,
+    });
   }
 });
 
@@ -132,8 +142,45 @@ router.get("/getRecipe", async (req, res) => {
     return res.status(201).json({ ok: true, recipe });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ ok: false, message: "Error en obtener recetas" });
+    res.status(500).json({ ok: false, message: "Error getting recipes" });
   }
 });
+
+router.delete("/deleteRecipe", async (req, res) => {
+  let token = req.cookies.access_token;
+  if (!token) {
+    return res.status(403).send("Not authorized: no token provided.");
+  }
+  const { recipe_id } = req.body;
+  try {
+    Receta.findOne({
+      where: { id: recipe_id },
+    })
+      .then(async (post) => {
+        await deletePostImage(post.dataValues.img_name); // delete image on backend
+        User.findOne({ where: { id: post.dataValues.user_id } }).then(
+          (user) => {
+            //decrement recipes_count by one
+            user.recipes_count--;
+            user.save();
+          }
+        );
+        post.destroy();
+      })
+      .then(() => res.status(200).json({ ok: true }));
+  } catch (e) {
+    console.error(e);
+    res
+      .status(500)
+      .json({ ok: false, message: `Error deleting recipe ${recipe_id}.` });
+  }
+});
+
+const deletePostImage = async (filename) => {
+  fs.unlink(UPLOADS_DIR + filename, (err) => {
+    if (err) throw err;
+    console.log(`${UPLOADS_DIR + filename} was deleted`);
+  });
+};
 
 export default router;
