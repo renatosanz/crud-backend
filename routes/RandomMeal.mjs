@@ -66,8 +66,6 @@ async function fetchAndSaveData() {
       path.join(DATA_DIR, filename),
       JSON.stringify(processed_meal, null, 2)
     );
-
-    console.log(`Datos guardados en ${filename}`);
   } catch (error) {
     console.error("Error al obtener datos:", error.message);
   }

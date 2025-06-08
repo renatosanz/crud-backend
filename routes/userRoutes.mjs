@@ -59,7 +59,6 @@ router.post("/login", async (req, res) => {
       .status(200)
       .json({ ok: true });
   } catch (error) {
-    console.error("Error on login:", error);
     res.status(500).json({ error: "Error while logging." });
   }
 });
@@ -68,7 +67,6 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   let userDataHashedPwd = req.body;
   if (await User.findOne({ where: { email: userDataHashedPwd.email } })) {
-    console.log("email ya ocupado");
     return res.json({ ok: false, error: "Email ya ocupado" });
   }
   try {
@@ -85,7 +83,6 @@ router.post("/register", async (req, res) => {
       });
     });
   } catch (error) {
-    console.error("Error: ", error);
     res.status(500).json({ ok: false, error: "Error on registering user" });
   }
 });
@@ -180,7 +177,6 @@ router.patch("/changedata", async (req, res) => {
 router.get("/random_day_meal", async (req, res) => {
   let token = req.cookies.access_token;
   if (!token) {
-    console.log("not auth logout");
     return res.status(403).send("Logout not authorized: no token provided.");
   }
   try {
@@ -209,7 +205,6 @@ router.get("/random_day_meal", async (req, res) => {
       }
     );
   } catch (err) {
-    console.log("not auth request for random meal");
     return res.status(403).send("Random Day Meal not authorized.");
   }
 });
@@ -218,7 +213,6 @@ router.get("/random_day_meal", async (req, res) => {
 router.post("/logout", async (req, res) => {
   let token = req.cookies.access_token;
   if (!token) {
-    console.log("not auth logout");
     return res.status(403).send("Logout not authorized: no token provided.");
   }
   try {
@@ -227,13 +221,11 @@ router.post("/logout", async (req, res) => {
     // save last login data
     user_db.last_login = req.body.last_login;
     user_db.save();
-    console.log("logout success");
     res
       .clearCookie("access_token", { sameSite: "none", secure: true })
       .status(200)
       .json({ ok: true });
   } catch (err) {
-    console.log("not auth logout");
     return res.status(403).send("Logout not authorized.");
   }
 });

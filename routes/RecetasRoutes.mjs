@@ -23,7 +23,6 @@ var upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post("/upload", upload.single("image"), async (req, res) => {
-  //console.log(req.file, req.body);
   let { user_id, title, description, ingredients, uploaded_at } = req.body;
 
   if (!user_id || !title || !description || !ingredients || !req.file) {
@@ -50,7 +49,6 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     );
     return res.status(201).json({ ok: true });
   } catch (e) {
-    console.error(e);
     res.status(500).json({ ok: false, message: "Error publishing recipe" });
   }
 });
@@ -105,7 +103,6 @@ router.post("/searchRecipes", async (req, res) => {
 
     return res.status(201).json({ ok: true, recipes });
   } catch (e) {
-    console.error(e);
     res.status(500).json({
       ok: false,
       message: `Error searching recipes for ${searchText} `,
@@ -141,7 +138,6 @@ router.get("/getRecipe", async (req, res) => {
 
     return res.status(201).json({ ok: true, recipe });
   } catch (e) {
-    console.error(e);
     res.status(500).json({ ok: false, message: "Error getting recipes" });
   }
 });
@@ -169,7 +165,6 @@ router.delete("/deleteRecipe", async (req, res) => {
       })
       .then(() => res.status(200).json({ ok: true }));
   } catch (e) {
-    console.error(e);
     res
       .status(500)
       .json({ ok: false, message: `Error deleting recipe ${recipe_id}.` });
@@ -179,7 +174,7 @@ router.delete("/deleteRecipe", async (req, res) => {
 const deletePostImage = async (filename) => {
   fs.unlink(UPLOADS_DIR + filename, (err) => {
     if (err) throw err;
-    console.log(`${UPLOADS_DIR + filename} was deleted`);
+    //console.log(`${UPLOADS_DIR + filename} was deleted`);
   });
 };
 
